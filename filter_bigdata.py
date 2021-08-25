@@ -2,8 +2,8 @@ import json
 from tqdm import tqdm
 
 data_path = 'data/'
-data_columns = ['lobby_type', 'game_mode', 'radiant_win']
-data_columns_final = ['hero'+str(n) for n in range(10)] + data_columns
+bigdata_columns = ['lobby_type', 'game_mode', 'radiant_win']
+data_columns = ['hero'+str(n) for n in range(10)] + bigdata_columns
 
 # for testing only
 qt_entries = 0
@@ -28,10 +28,12 @@ with open(data_path+'bigdata.json', 'r') as bigdata_file, open(data_path+'data.j
 			row['hero'+player_pos] = player['hero_id']
 		if ignore_entry:
 			continue
-		for key in data_columns:
+		for key in bigdata_columns:
 			if key not in entry:
 				break
 			row[key] = entry[key]
+		win = lambda value : 1 if value == True else 0
+		row['radiant_win'] = win(row['radiant_win'])
 		json.dump(row, data_file)
 		data_file.write('\n')
 
