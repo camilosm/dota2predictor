@@ -1,5 +1,4 @@
 import json
-import pandas as pd
 from tqdm import tqdm
 
 data_path = 'data/'
@@ -42,6 +41,6 @@ with open(data_path+'bigdata.json', 'r') as bigdata_file, open(data_path+'data.j
 			qt_entries+=1
 			if qt_entries == 100:
 				break
-
+			
 # for testing only
 print(qt_entries)
