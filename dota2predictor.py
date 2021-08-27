@@ -21,7 +21,10 @@ class Dota2Predictor:
 		self.bigdata_filename = bigdata_filename
 		self.patch = patch
 		self.onlyheros = onlyheroes
-		self.features = features
+		if onlyheroes:
+			self.features = []
+		else:
+			self.features = features
 		self.game_mode = game_mode
 		self.lobby_type = lobby_type
 	
@@ -77,26 +80,36 @@ class Dota2Predictor:
 
 		features_train, features_test, labels_train, labels_test = train_test_split(features, labels, test_size=0.25)
 		
+		train_set = {'features': features_train, 'labels': labels_train}
+		test_set = {'features': features_test, 'labels': labels_test}
 		metrics_data = {}
 
-		dtc = DecisionTreeClassifier()
-		dtc.fit(features_train, labels_train)
-		labels_predicted = dtc.predict(features_test)
-		metrics_data['dtc'] = metrics.accuracy_score(labels_test, labels_predicted)
+		# dtc = DecisionTreeClassifier()
+		# dtc.fit(features_train, labels_train)
+		# labels_predicted = dtc.predict(features_test)
+		# metrics_data['dtc'] = metrics.accuracy_score(labels_test, labels_predicted)
 
-		# print(accuracy_score(y_test,y_pred))
+		# rfc = RandomForestClassifier()
+		# rfc.fit(features_train, labels_train)
+		# labels_predicted = rfc.predict(features_test)
+		# metrics_data['rfc'] = metrics.accuracy_score(labels_test, labels_predicted)
+
+		# knc = KNeighborsClassifier()
+		# knc.fit(features_train, labels_train)
+		# labels_predicted = knc.predict(features_test)
+		# metrics_data['knc'] = metrics.accuracy_score(labels_test, labels_predicted)
+
+		self.classify(DecisionTreeClassifier(), 'dtc', train_set, test_set, metrics_data)
+		self.classify(RandomForestClassifier(), 'rfc', train_set, test_set, metrics_data)
+		self.classify(KNeighborsClassifier(), 'knc', train_set, test_set, metrics_data)
+		
+		return metrics_data
+
+	def classify(self, classifier, name, train_set, test_set, metrics_data):
+		classifier.fit(train_set['features'], train_set['labels'])
+		labels_predicted = classifier.predict(test_set['features'])
+		metrics_data[name] = metrics.accuracy_score(test_set['labels'], labels_predicted)
+
+			# print(accuracy_score(y_test,y_pred))
 		# print(recall_score(y_test,y_pred))
 		# print(confusion_matrix(y_test,y_pred))
-
-
-		rfc = RandomForestClassifier()
-		rfc.fit(features_train, labels_train)
-		labels_predicted = rfc.predict(features_test)
-		metrics_data['rfc'] = metrics.accuracy_score(labels_test, labels_predicted)
-
-		knc = KNeighborsClassifier()
-		knc.fit(features_train, labels_train)
-		labels_predicted = knc.predict(features_test)
-		metrics_data['knc'] = metrics.accuracy_score(labels_test, labels_predicted)
-
-		return metrics_data
