@@ -1,6 +1,6 @@
 import json
 from operator import imod
-from os import get_exec_path
+from os import get_exec_path, system
 import ijson
 from tqdm import tqdm
 import pandas as pd
@@ -80,17 +80,17 @@ class Dota2Predictor:
 				if usefull_matches == number_of_matches:
 					break
 			progress_bar.close()
+		print('Parsed, got '+str(usefull_matches)+' usefull matches.')
 	
-	def classify(self, classifier, name, train_set, test_set, metrics_data):
+	def classify(self, classifier, id, train_set, test_set, metrics_data):
 		classifier.fit(train_set['features'], train_set['labels'])
 		labels_predicted = classifier.predict(test_set['features'])
 
 		metrics_score = {}
-		metrics_score['accuracy_score'] = metrics.accuracy_score(test_set['labels'], labels_predicted)
-		metrics_score['recall_score'] = metrics.recall_score(test_set['labels'], labels_predicted)
+		metrics_score['report'] = metrics.classification_report(test_set['labels'], labels_predicted)
 		metrics_score['confusion_matrix'] = metrics.confusion_matrix(test_set['labels'], labels_predicted)
 
-		metrics_data[name] = metrics_score
+		metrics_data[id] = metrics_score
 
 	def analise_data(self, features = 'all') -> list:
 		if features == 'heroes':
@@ -115,8 +115,7 @@ class Dota2Predictor:
 		
 		metrics_data = {}
 		classifiers = {}
-		
-		classifiers['dtc'] = (DecisionTreeClassifier(), 'Decision Tree')
+
 		classifiers['rfc'] = (RandomForestClassifier(), 'Random Forest')
 		classifiers['knc'] = (KNeighborsClassifier(), 'K Neighbors')
 
@@ -125,10 +124,5 @@ class Dota2Predictor:
 			metrics.plot_confusion_matrix(classifier, test_set['features'], test_set['labels'])
 			plt.suptitle(name)
 			plt.show()
-
-		# self.classify(DecisionTreeClassifier(), 'dtc', train_set, test_set, metrics_data)
-		# self.classify(RandomForestClassifier(), 'rfc', train_set, test_set, metrics_data)
-		# self.classify(KNeighborsClassifier(), 'knc', train_set, test_set, metrics_data)
-
-		return metrics_data
+			print(metrics_data[id]['report'])
 
